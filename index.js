@@ -31,6 +31,19 @@ router.get('/package/:aid/:cid', async (ctx) => {
   ctx.body="新闻详情多参数"
 })
 
+// get传值
+router.get('/package', async (ctx) => {
+  //获取动态路由的传值
+  console.log(ctx.query)
+  console.log(ctx.querystring)
+  console.log(ctx.url)
+  console.log(ctx.request.query)
+  console.log(ctx.request.querystring)
+  console.log(ctx.request.url)
+  console.log('ctx', ctx)
+  ctx.body = ctx
+})
+
 // 启动路由
 app.use(router.routes())
   .use(router.allowedMethods())

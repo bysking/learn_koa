@@ -54,3 +54,7 @@ router.get('/package', async (ctx) => {
 app.use(router.allowedMethods())
 app.listen(3000)
 
+//
+// app.use('/public', express.static('public'));
+// app.use(bodyParser.urlencoded({ extended: false }));
+// app.use(multer({ dest: '/tmp/'}).array('image'));

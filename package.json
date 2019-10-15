@@ -1,0 +1,23 @@
+{
+  "name": "learn_koa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bysking/learn_koa.git"
+  },
+  "author": "bysking",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bysking/learn_koa/issues"
+  },
+  "homepage": "https://github.com/bysking/learn_koa#readme",
+  "dependencies": {
+    "koa": "^2.10.0"
+  }
+}

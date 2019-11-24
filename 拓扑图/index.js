@@ -1,7 +1,8 @@
 // console.log(echarts)
 var myChart = echarts.init(document.getElementById('main'));
+window.myChart = myChart
 
-const list3 = [{
+const list2 = [{
     name: 'a',
     parent: 'b'
 }, {
@@ -86,7 +87,7 @@ const list = [{
 },
 {
     name: 'l',
-    parent: 'm'
+    parent: 'n'
 },
 {
     name: 'h',
@@ -96,10 +97,59 @@ const list = [{
     name: 'k',
     parent: 'm'
 },
+{
+    name: 'm',
+    parent: 'n'
+},
+{
+    name: 'n',
+    parent: 'o'
+},
+{
+    name: 'n',
+    parent: 'p'
+},
+{
+    name: 'n',
+    parent: 'q'
+},
+{
+    name: 'o',
+    parent: 'r'
+},
+{
+    name: 'p',
+    parent: 's'
+},
+{
+    name: 'q',
+    parent: 't'
+},
+{
+    name: 'r',
+    parent: 'u'
+},
+{
+    name: 's',
+    parent: 'u'
+},
+{
+    name: 'u',
+    parent: 'v'
+},
+{
+    name: 'v',
+    parent: 'w'
+},
+{
+    name: 't',
+    parent: 'u'
+},
 ]
 
-console.log('list')
+console.log('关系数据list')
 console.log(list)
+// 构造指定key的links数据，echarts要求
 const links = list.map((item) => {
     return {
         source: item.name,
@@ -107,9 +157,16 @@ const links = list.map((item) => {
     }
 })
 
-console.log('links')
+console.log('构建graph关系links')
 console.log(links)
 
+// a -> b
+// a -> c
+// 那么我们得到
+// res = {
+//     a: ['b', 'c'], // a 的父亲或者孩子
+//     b: ['e']
+// }
 const res = {}
 list.forEach((item) => {
     const { name, parent } = item
@@ -121,24 +178,33 @@ list.forEach((item) => {
     }
 })
 
-console.log('构建父子数组')
+console.log('构建节点的父/子数组映射关系')
 console.log(res)
+// root表示给定的根节点以及数据结构，level表示横向层级，y表示纵向层级,两个用来计算坐标
 const root = {
     name: 'a',
-    parent: []
+    parent: [],
+    level: 1,
+    y: 0
 }
-root.level = 1
-root.y = 1
+
+// res = {
+//     a: ['b', 'c'], // a 的父亲或者孩子
+//     b: ['e']
+// }
+// root默认是a那么他的父亲从上面计算的res里面拿
 root.parent = res[root.name]
 
 // console.log(root)
-res2 = []
+res2 = [] // 计算结果统计
 res2.push(root)
 fn(root, root.parent)
-console.log('计算层级')
+console.log('计算level层级')
 console.log(res2)
+
+// 定义计算指定节点的所有父亲节点的横向层级level函数
 function fn(root, parent) { // root根节点，parent: 根节点父亲
-    if (!parent || parent.length == 0) return
+    if (!parent || parent.length == 0) return // 没有父亲就终止
     parent.forEach((item, index) => {
         let single = true
         res2.forEach((ite) => { // 保证res2中不重复
@@ -146,11 +212,10 @@ function fn(root, parent) { // root根节点，parent: 根节点父亲
                 single = false
             }
         })
-        single && res2.push({
+        single && res2.push({ // 计算level结果统计
             name: item,
             parent: res[item],
-            level: root.level + 1,
-            y: index + 1
+            level: root.level + 1 // 计算的level
         })
     })
     parent.forEach((item) => {
@@ -161,60 +226,77 @@ function fn(root, parent) { // root根节点，parent: 根节点父亲
         fn(itemobj, itemobj.parent)
     })
 }
-const width = 600
-const height = 400
-const n = 4
-const j = 2
-const xx = width / n
-const yy = height / (j * 2)
 
 // 计算高度层级
-const map = {}
+const map = {} // 存放level对应的节点个数，每个level对应的节点数用来依次给该层y赋值
 const temp = res2.map((ite) => {
-    if (!map[ite.level]) {
-        map[ite.level] = 1
+    if (!map[ite.level]) { // 第一次统计到level
+        map[ite.level] = 1 // set 1
     } else {
-        map[ite.level] = map[ite.level] + 1
+        map[ite.level] = map[ite.level] + 1 // 统计到就加一
     }
-    ite.y = map[ite.level]
-    return ite
+    ite.y = map[ite.level] // 每个level对应的节点数用来依次给该层y赋值
+    return ite // 返回ite, 上面操作的都是对象引用，注意bug
 })
-console.log('修正高度层级')
-console.log(temp)
+console.log('计算高度层级y')
+console.log(map)
 
-const res3 = res2.map((item) => {
-    return {
-        name: item.name,
-        x: item.level * xx,
-        y: yy * (2 * item.y - 1)
-    }
-})
-console.log('计算坐标')
-console.log(res3)
-// const res4 = []
-// res3.forEach((ite) => {
-//     if (res4.indexOf(ite) < 0) {
-//         res4.push(ite)
+const width = 1288 // 宽
+const height = 800 // 高
+const n = 7 //level的最大值
+const j = 4 // y的最大值
+const xx = 100
+// const xx = width / n // 横向一单位长度
+// const yy = height / (j * 2) // 纵向一单位长度
+
+// const res3 = temp.map((item) => { // 构造data数组，和links一起传给echarts
+//     return {
+//         name: item.name,
+//         x: item.level * xx, // 横坐标
+//         y: yy * (2 * item.y - 1) // 纵坐标，*2是因为两节点平分中间间距
 //     }
 // })
-// console.log(res4)
+const res3 = temp.map((item) => { // 构造data数组，和links一起传给echarts
+    const yy = height / (map[item.level] * 2)
+    return {
+        symbol: 'image://http://atts.w3cschool.cn/attachments/cover/cover_echarts_tutorial.jpeg?t=1314520&imageView2/1/w/150/h/84',
+        symbolSize: [20,10],
+        name: item.name,
+        x: item.level * xx, // 横坐标
+        y: yy * (2 * item.y - 1) // 纵坐标，*2是因为两节点平分中间间距
+    }
+})
+console.log('计算节点坐标')
+console.log(res3)
+
 option = {
     title: {
-        text: 'Graph 简单示例'
+        text: '拓扑图'
     },
     tooltip: {},
+    // legend: [{ // 配置节点标签，与series中的categories连用
+    //     data: res3.map(function (a) {
+    //         return a.name;
+    //     })
+    // }],
+    focusNodeAdjacency: true,
     animationDurationUpdate: 1500,
     animationEasingUpdate: 'quinticInOut',
     series: [
         {
             type: 'graph',
             layout: 'none',
-            symbolSize: 50,
+            symbolSize: 20,
             roam: true,
+            // categories: res3, // 配置节点标签，与上面legend连用
             label: {
                 normal: {
                     show: true
                 }
+            },
+            label: {
+                position: 'right',
+                formatter: '{b}'
             },
             edgeSymbol: ['circle', 'arrow'],
             edgeSymbolSize: [4, 10],
@@ -227,15 +309,92 @@ option = {
             },
             data: res3,
             links: links,
-            lineStyle: {
+            // lineStyle: {
+            //     normal: {
+            //         opacity: 0.9,
+            //         width: 2,
+            //         curveness: 0
+            //     }
+            // },
+            itemStyle: {
                 normal: {
-                    opacity: 0.9,
-                    width: 2,
-                    curveness: 0
+                    borderColor: 'red',
+                    borderWidth: 30,
+                    shadowBlur: 10,
+                    shadowColor: 'rgba(0, 0, 0, 0.3)'
+                }
+            },
+            lineStyle: {
+                color: 'source',
+                curveness: 0
+            },
+            emphasis: {
+                lineStyle: {
+                    width: 5
                 }
             }
         }
-    ]
+    ],
+    toolbox: {
+        show: true,
+        feature: {
+            saveAsImage: {
+                show:true,
+                excludeComponents :['toolbox'],
+                pixelRatio: 2
+                
+            }
+        }
+    }
 };
 
+option2 = {
+    backgroundColor: '#000033',
+    series: [{
+        type: 'graph',
+        layout: 'force',
+        symbolSize: 50,
+        roam: true,
+        edgeSymbol: ['circle', 'arrow'],
+        force: {
+            repulsion: 1000,
+            edgeLength: [150, 200],
+            layoutAnimation: false
+        },
+        draggable: true,
+        edgeLabel: {
+            normal: {
+                show: true,
+                formatter: function(x) {
+                    return x.data.name;
+                }
+            }
+        },
+        label: {
+            normal: {
+                show: true,
+                position: 'bottom',
+                color: '#17FFF3'
+            }
+        },
+        lineStyle: {
+            normal: {
+                width: 2,
+                shadowColor: 'none'
+            }
+        },
+        data: res3,
+        links: links,
+        itemStyle: {
+            normal: {
+                label: {
+                    show: true,
+                    formatter: function(item) {
+                        return item.data.name
+                    }
+                }
+            }
+        }
+    }]
+};
 myChart.setOption(option)

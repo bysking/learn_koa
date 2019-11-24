@@ -9,11 +9,37 @@
 </head>
 
 <body>
-    <h1>拓补图实践</h1>
     <div id="main" style="width:600px; height:400px; background-color: #DAE4E4;"></div>
+    <div id="pic"></div>
+    <button onclick="save()">截图</button>
     <script src="echarts.js"></script>
     <script src="index.js"></script>
     <script>
+    function save() { // 测试保存图片
+        // img = myChart.getDataURL({
+        //     pixelRatio: 2, // double pixel
+        //     backgroundColor: '#fff' 
+        //   });
+
+        // //   https://www.jianshu.com/p/fbdba961ec47
+        imgdata = myChart.getDataURL({
+            // type: 'png',
+            pixelRatio: 2, // double pixel
+            backgroundColor: '#fff' 
+        });
+        
+        console.log(imgdata)
+        var c=document.getElementById("pic");
+        var img=new Image();
+        img.src = imgdata;
+        img.crossOrigin = "anonymous";
+        //增加这一行：
+
+        img.setAttribute("crossOrigin",'anonymous');
+        img.style.width = '300px'
+        img.style.height = '300px'
+        c.append(img)
+    }
 
     </script>
 </body>
